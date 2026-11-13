@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Берег — бронирование загородных домов </title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+  <header class="site-header">
+    <div>
+      <h1>Берег</h1>
+      <p class="tagline">Восемь домов у озера. Выберите на схеме, посчитайте стоимость и забронируйте.</p>
+    </div>
+    <a class="header-link" href="#bookings">Мои брони: <span id="bookings-count">0</span></a>
+  </header>
+
+  <div id="notice" class="notice" role="status" aria-live="polite" hidden></div>
+
+  <main class="layout">
+    <div class="col-main">
+      <section class="panel" aria-labelledby="filters-title">
+        <h2 id="filters-title">Фильтры</h2>
+        <form id="filters" class="filters" novalidate>
+          <div class="field">
+            <label for="filter-guests">Гостей (от)</label>
+            <input id="filter-guests" type="number" inputmode="numeric" min="1" step="1" placeholder="любое" aria-describedby="filter-guests-error">
+            <p id="filter-guests-error" class="error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="filter-price">Цена за ночь (до, ₽)</label>
+            <input id="filter-price" type="number" inputmode="numeric" min="1" step="100" placeholder="любая" aria-describedby="filter-price-error">
+            <p id="filter-price-error" class="error" hidden></p>
+          </div>
+          <button type="button" id="filters-reset" class="btn secondary">Сбросить фильтры</button>
+        </form>
+        <p id="result-count" class="result-count" aria-live="polite"></p>
+      </section>
+
+      <section class="panel" aria-labelledby="map-title">
+        <h2 id="map-title">Схема посёлка</h2>
+        <div class="map" id="map">
+          <svg viewBox="0 0 100 80" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false">
+            <rect width="100" height="80" fill="#d4e6cb"/>
+            <path d="M58 62 C57 51 77 48 90 55 C101 61 97 76 82 78 C66 80 58 73 58 62Z" fill="#9cc8e0" stroke="#3f86b0" stroke-width=".8"/>
+            <path d="M65 64 C70 59 82 59 89 63" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width=".6"/>
+            <path d="M70 70 C75 67 82 68 86 71" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width=".5"/>
+            <path d="M-2 41 C20 35 38 47 58 41 S90 31 102 37" fill="none" stroke="#d8c892" stroke-width="5"/>
+            <path d="M-2 41 C20 35 38 47 58 41 S90 31 102 37" fill="none" stroke="#fbfcfa" stroke-width=".5" stroke-dasharray="2 2"/>
+            <g fill="#8fb884">
+              <circle cx="4" cy="8" r="3.2"/><circle cx="8" cy="14" r="2.6"/><circle cx="95" cy="6" r="3"/>
+              <circle cx="97" cy="14" r="2.4"/><circle cx="3" cy="30" r="2.8"/><circle cx="96" cy="26" r="2.6"/>
+              <circle cx="4" cy="62" r="3.4"/><circle cx="9" cy="70" r="2.8"/><circle cx="44" cy="70" r="3"/>
+              <circle cx="50" cy="75" r="2.4"/><circle cx="38" cy="58" r="2.4"/>
+            </g>
+          </svg>
+          <div id="pins" class="pins"></div>
+        </div>
+        <ul class="legend" aria-label="Обозначения на схеме">
+          <li><span class="swatch" data-status="free">1</span> Свободен</li>
+          <li><span class="swatch" data-status="selected">1✓</span> Выбран</li>
+          <li><span class="swatch" data-status="busy">1×</span> Занят</li>
+        </ul>
+      </section>
+
+      <section class="panel" aria-labelledby="list-title">
+        <h2 id="list-title">Список домов</h2>
+        <ul id="house-list" class="house-list"></ul>
+        <p id="empty-hint" class="empty-hint" hidden>Под эти условия домов нет. Увеличьте цену или уменьшите число гостей, либо сбросьте фильтры.</p>
+      </section>
+    </div>
+
+    <div class="col-side">
+      <section class="panel" aria-labelledby="card-title">
+        <h2 id="card-title">Выбранный дом</h2>
+        <div id="card-info" class="card-info" aria-live="polite"></div>
+
+        <form id="booking-form" class="booking-form" novalidate>
+          <div class="field">
+            <label for="guests">Гостей</label>
+            <input id="guests" type="number" inputmode="numeric" min="1" step="1" value="2" aria-describedby="guests-error">
+            <p id="guests-error" class="error" hidden></p>
+          </div>
+          <div class="field">
+            <label for="nights">Ночей (от 1 до 30)</label>
+            <input id="nights" type="number" inputmode="numeric" min="1" max="30" step="1" value="1" aria-describedby="nights-error">
+            <p id="nights-error" class="error" hidden></p>
+          </div>
+
+          <p class="total">Итого: <strong id="total">—</strong></p>
+          <p id="total-note" class="total-note"></p>
+
+          <p id="form-error" class="error" role="alert" hidden></p>
+          <button type="submit" id="confirm" class="btn primary">Подтвердить бронь</button>
+        </form>
+      </section>
+
+      <section id="bookings" class="panel" aria-labelledby="bookings-title">
+        <h2 id="bookings-title" tabindex="-1">Мои брони</h2>
+        <ul id="bookings-list" class="bookings-list"></ul>
+        <p id="bookings-empty" class="placeholder">Броней пока нет. Выберите свободный дом и подтвердите бронь.</p>
+        <button type="button" id="reset-demo" class="btn secondary">Сбросить демо</button>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-footer">
+  </footer>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>
